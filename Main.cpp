@@ -55,6 +55,20 @@ void setDefaultSettings() {
 }
 
 void drawTriangle() {
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f, // left  
+		 0.5f, -0.5f, 0.0f, // right 
+		 0.0f,  0.5f, 0.0f  // top   
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+
 
 }
 
@@ -141,7 +155,7 @@ void settingsGUI() {
 void shapesGUI() {
 	ImGui::Begin("Shapes");
 	if (ImGui::Button("Rectangle")) {
-		std::string rectangle = "rectangle" + char(shapesI);
+		std::string rectangle = "rectangle";
 		shapes.push_back(rectangle);
 		shapesI++;
 	}
@@ -203,8 +217,9 @@ int main() {
 	glViewport(0, 0, (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+
 	drawRectangle();
-	drawTriangle();
+	
 	glEnable(GL_DEPTH_TEST);
 
 
@@ -274,7 +289,7 @@ int main() {
 		glm::mat4 view = glm::mat4(1.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 		glm::mat4 projection;
-		projection = glm::ortho(-2.0f, +2.0f, -1.5f, +1.5f, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
 		int viewLoc = glGetUniformLocation(shader.getID(), "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
@@ -290,7 +305,13 @@ int main() {
 		glBindVertexArray(VAO);
 
 		for (int i = 0; i < shapes.size(); i++) {
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+			if (shapes[i].c_str() == "triangle") {
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+
+			}
+			else {
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
 		}
 
 		settingsGUI();
