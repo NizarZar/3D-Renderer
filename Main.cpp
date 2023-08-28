@@ -25,6 +25,8 @@ std::vector<std::string> shapes;
 
 unsigned int input;
 
+int shapesI = 0;
+
 GLuint VBO, VAO;
 
 float positionY = 0.0f;
@@ -120,6 +122,57 @@ void drawRectangle() {
 
 }
 
+void settingsGUI() {
+
+	ImGui::Begin("Settings");
+	ImGui::Text("Position:");
+	ImGui::SliderFloat("X Axis", &positionX, -3.0f, 3.0f);
+	ImGui::SliderFloat("Y Axis", &positionY, -3.0f, 3.0f);
+	ImGui::SliderFloat("Z Axis", &positionZ, -3.0f, 3.0f);
+	ImGui::Text("Scale: ");
+	ImGui::SliderFloat("X", &sizeX, 0.f, 3.0f);
+	ImGui::SliderFloat("Y", &sizeY, 0.f, 3.0f);
+	ImGui::SliderFloat("Z", &sizeZ, 0.f, 3.0f);
+	ImGui::Text("Rotation:");
+	ImGui::End();
+
+}
+
+void shapesGUI() {
+	ImGui::Begin("Shapes");
+	if (ImGui::Button("Rectangle")) {
+		std::string rectangle = "rectangle" + char(shapesI);
+		shapes.push_back(rectangle);
+		shapesI++;
+	}
+	if (ImGui::Button("Triangle")) {
+		std::cout << "Triangle!" << std::endl;
+		shapes.push_back("triangle");
+		shapesI++;
+	}
+	if (ImGui::Button("Delete Previous")) {
+		if (!shapes.empty()) {
+			shapes.pop_back();
+			shapesI--;
+		}
+	}
+	if (ImGui::Button("Clear")) {
+		while (!shapes.empty()) {
+			shapes.pop_back();
+			shapesI = 0;
+		}
+	}
+	ImGui::End();
+}
+
+void sceneGUI() {
+	ImGui::Begin("Scene");
+	for (int i = 0; i < shapes.size(); i++) {
+		ImGui::Text(shapes[i].c_str());
+	}
+	ImGui::End();
+}
+
 int main() {
 	// set up glfw and version opengl
 	glfwInit();
@@ -198,9 +251,6 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	int shapesI = 0;
-
-
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
 		// check input
@@ -242,48 +292,11 @@ int main() {
 		for (int i = 0; i < shapes.size(); i++) {
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		ImGui::Begin("Settings");
-		ImGui::Text("Position:");
-		ImGui::SliderFloat("X Axis", &positionX, -3.0f, 3.0f);
-		ImGui::SliderFloat("Y Axis", &positionY, -3.0f, 3.0f);
-		ImGui::SliderFloat("Z Axis", &positionZ, -3.0f, 3.0f);
-		ImGui::Text("Scale: ");
-		ImGui::SliderFloat("X", &sizeX, 0.f, 3.0f);
-		ImGui::SliderFloat("Y", &sizeY, 0.f, 3.0f);
-		ImGui::SliderFloat("Z", &sizeZ, 0.f, 3.0f);
-		ImGui::Text("Rotation:");
-		ImGui::End();
 
-		ImGui::Begin("Shapes");
-		if (ImGui::Button("Rectangle")) {
-			std::string rectangle = "rectangle" + char(shapesI);
-			shapes.push_back(rectangle);
-			shapesI++;
-		}
-		if (ImGui::Button("Triangle")) {
-			std::cout << "Triangle!" << std::endl;
-			shapes.push_back("triangle");
-			shapesI++;
-		}
-		if (ImGui::Button("Delete Previous")) {
-			if (!shapes.empty()) {
-				shapes.pop_back();
-				shapesI--;
-			}
-		}
-		if (ImGui::Button("Clear")) {
-			while (!shapes.empty()) {
-				shapes.pop_back();
-				shapesI = 0;
-			}
-		}
-		ImGui::End();
+		settingsGUI();
+		shapesGUI();
+		sceneGUI();
 
-		ImGui::Begin("Scene");
-		for (int i = 0; i < shapes.size(); i++) {
-			ImGui::Text(shapes[i].c_str());
-		}
-		ImGui::End();
 
 		shader.setFloat("sizeX", sizeX);
 		shader.setFloat("sizeY", sizeY);
