@@ -1,35 +1,146 @@
 #include "Model.h"
 
 
+// variables
 
+
+// screen 
 const float SCREEN_WIDTH = 800.0f;
 const float SCREEN_HEIGHT = 600.0f;
+
+// object size
 
 float sizeX = 1.0f;
 float sizeY = 1.0f;
 float sizeZ = 1.0f;
 
+bool lookState = false;
+
+// stored shapes you can create
 std::vector<std::string> shapes;
+
 
 unsigned int input;
 
 int shapesI = 0;
 
+// VBO, VAO
 GLuint VBO, VAO;
+
+// object position
 
 float positionY = 0.0f;
 float positionX = 0.0f;
 float positionZ = 0.0f;
+
+// camera
+
+glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+bool fMouse = true;
+float yaw = -90.f;
+float pitch = 0.0f;
+float lastX = SCREEN_WIDTH / 2.0f;
+float lastY = SCREEN_HEIGHT / 2.0f;
+float fov = 45.f;
+
+bool lookAround = false;
+
+// time
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	fov -= (float)yoffset;
+	if (fov < 1.0f) {
+		fov = 1.0f;
+	}
+	if (fov > 90.f) {
+		fov = 90.f;
+	}
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		lookAround = true;
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+		lookAround = false;
+	}
+
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+
+	float xpos = static_cast<float>(xposIn);
+	float ypos = static_cast<float>(yposIn);
+
+	if (fMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		fMouse = false;
+	}
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+
+	float sensitivity = 0.1f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	if (lookAround) {
+		yaw += xoffset;
+		pitch += yoffset;
+	}
+	// if out of bound 
+	if (pitch > 89.f) {
+		pitch = 89.f;
+	}
+	if (pitch < -89.f) {
+		pitch = -89.f;
+	}
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+	
+}
+
 void processInput(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 	}
+	float cameraSpeed = static_cast<float>(2.5 * deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		cameraPosition += cameraSpeed * cameraFront;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		cameraPosition -= cameraSpeed * cameraFront;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+	if (glfwGetKey(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+		lookAround = true;
+		std::cout << "Left pressed" << std::endl;
+	}
+	
 
 }
 
@@ -135,7 +246,8 @@ void settingsGUI() {
 	ImGui::SliderFloat("X", &sizeX, 0.f, 3.0f);
 	ImGui::SliderFloat("Y", &sizeY, 0.f, 3.0f);
 	ImGui::SliderFloat("Z", &sizeZ, 0.f, 3.0f);
-	ImGui::Text("Rotation:");
+	ImGui::Text("Camera: ");
+	ImGui::SliderFloat("FOV", &fov, 1.f, 90.f);
 	ImGui::End();
 
 }
@@ -183,6 +295,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
+
 	// window creation
 	GLFWwindow* window = glfwCreateWindow((int)SCREEN_WIDTH, (int)SCREEN_HEIGHT, "3D Renderer", NULL, NULL);
 	if (window == nullptr) {
@@ -204,7 +317,9 @@ int main() {
 	// opengl viewport
 	glViewport(0, 0, (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	drawRectangle();
 	
@@ -256,6 +371,11 @@ int main() {
 
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
+		// frame check
+		float currentFrame = static_cast<float>(glfwGetTime());
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		
 		// check input
 		processInput(window);
 		// rendering
@@ -263,6 +383,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
+
+
+
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -274,15 +397,17 @@ int main() {
 		}
 
 		shader.use();
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
-
+		// camera view
+		glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
 		int viewLoc = glGetUniformLocation(shader.getID(), "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+		// camera projection
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(fov), SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.f);
+
 		int projectionLoc = glGetUniformLocation(shader.getID(), "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
 
 
 		glBindVertexArray(VAO);
@@ -291,6 +416,7 @@ int main() {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(positionX, positionY, positionZ));
 			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+			model = glm::rotate(model, -glm::radians(45.f)*i, glm::vec3(1.0f, 1.0f, 1.0f));
 			int modelLoc = glGetUniformLocation(shader.getID(), "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
