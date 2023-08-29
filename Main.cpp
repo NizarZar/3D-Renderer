@@ -1,16 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "Shader.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
-#include "stb_image.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "Model.h"
 
 
 
@@ -159,17 +147,17 @@ void shapesGUI() {
 		shapes.push_back(rectangle);
 		shapesI++;
 	}
-	if (ImGui::Button("Triangle")) {
-		std::cout << "Triangle!" << std::endl;
-		shapes.push_back("triangle");
-		shapesI++;
-	}
-	if (ImGui::Button("Delete Previous")) {
-		if (!shapes.empty()) {
-			shapes.pop_back();
-			shapesI--;
-		}
-	}
+	//if (ImGui::Button("Triangle")) {
+		//std::cout << "Triangle!" << std::endl;
+		//shapes.push_back("triangle");
+		//shapesI++;
+	//}
+	//if (ImGui::Button("Delete Previous")) {
+		//if (!shapes.empty()) {
+		//	shapes.pop_back();
+		//	shapesI--;
+		//}
+	//}
 	if (ImGui::Button("Clear")) {
 		while (!shapes.empty()) {
 			shapes.pop_back();
@@ -260,7 +248,7 @@ int main() {
 	shader.setInt("texture1", 0);
 	
 	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
+	ImGui::CreateContext(); 
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -295,24 +283,20 @@ int main() {
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 		int projectionLoc = glGetUniformLocation(shader.getID(), "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, -glm::radians(55.f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(positionX, positionY, positionZ));
-		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
-		int modelLoc = glGetUniformLocation(shader.getID(), "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
 
 		glBindVertexArray(VAO);
 
 		for (int i = 0; i < shapes.size(); i++) {
-			if (shapes[i].c_str() == "triangle") {
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-
-			}
-			else {
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-			}
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, glm::vec3(positionX, positionY, positionZ));
+			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+			int modelLoc = glGetUniformLocation(shader.getID(), "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+
+		
 
 		settingsGUI();
 		shapesGUI();
