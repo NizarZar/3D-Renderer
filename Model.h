@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_stdlib.h"
 
 #include "stb_image.h"
 #include <glm/glm.hpp>
@@ -29,6 +30,7 @@ public:
 	float getPositionZ();
 
 	std::string getName();
+	void setName(std::string newName);
 	int getID();
 	float positionX;
 	float positionY;

@@ -19,6 +19,7 @@ float sizeX = 1.0f;
 float sizeY = 1.0f;
 float sizeZ = 1.0f;
 
+// camera right click look state
 bool lookState = false;
 
 // stored shapes you can create
@@ -29,8 +30,9 @@ Model currentObject;
 // input value
 unsigned int input;
 
-// shapes size calculator
-int shapesI = 0;
+// object on scene ID calculator
+int objectID = 0;
+std::string name = "";
 
 // VBO, VAO
 GLuint VBO, VAO;
@@ -60,7 +62,7 @@ float fov = 45.f;
 
 bool lookAround = false;
 
-// time
+// time and frame
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
@@ -249,11 +251,19 @@ void drawGrid() {
 
 void shapesGUI() {
 	ImGui::Begin("Shapes");
+	ImGui::InputText("Name", &name, sizeof(name));
 	if (ImGui::Button("Rectangle")) {
-		std::string rectangle = "rectangle"+shapesI;
-		Model model(rectangle, shapesI);
+		for (unsigned int i = 0; i < sceneObjects.size(); i++) {
+			if (sceneObjects[i].getName() == name) {
+				name += std::to_string(objectID);
+			}
+		}
+		if (name == "") {
+			name = "rectangle";
+		}
+		Model model(name, objectID);
 		sceneObjects.push_back(model);
-		shapesI++;
+		objectID++;
 	}
 	//if (ImGui::Button("Triangle")) {
 		//std::cout << "Triangle!" << std::endl;
@@ -269,8 +279,8 @@ void shapesGUI() {
 	if (ImGui::Button("Clear")) {
 		while (!sceneObjects.empty()) {
 			sceneObjects.pop_back();
-			shapesI = 0;
 		}
+		objectID = 0;
 	}
 	ImGui::End();
 }
@@ -280,8 +290,9 @@ void settingsGUI() {
 	fileBrowser.SetTitle("Select texture");
 
 	ImGui::Begin("Settings");
-	ImGui::Checkbox("Grid View", &isGridView);
+	ImGui::Checkbox("Grid View (not implemented)", &isGridView);
 	ImGui::Text("Position:");
+	// slider to change the position of the current object as well as store new information on the list of sceneObjects
 	if (ImGui::SliderFloat("X Axis", &currentObject.positionX, -3.0f, 3.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
@@ -348,7 +359,6 @@ void sceneGUI() {
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		bool selectable = ImGui::Selectable(sceneObjects[i].getName().c_str(), false);
 		if (selectable) {
-			selectable = ImGui::Selectable(sceneObjects[i].getName().c_str(), true);
 			if (currentObject.getID() != sceneObjects[i].getID()) {
 				currentObject = sceneObjects[i];
 			}

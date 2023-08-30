@@ -50,6 +50,10 @@ float Model::getPositionZ() {
 std::string Model::getName() {
 	return name;
 }
+void Model::setName(std::string newName) {
+	name = newName;
+}
+
 int Model::getID() {
 	return id;
 }
