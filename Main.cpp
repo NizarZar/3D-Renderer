@@ -8,9 +8,11 @@
 const float SCREEN_WIDTH = 1280.f;
 const float SCREEN_HEIGHT = 720.0f;
 
+// texture files
 std::string textureFilePathString;
 const char* textureFilePath;
 
+// grid view
 bool isGridView = false;
 
 // object size
