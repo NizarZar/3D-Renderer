@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_stdlib.h"
 
 #include "stb_image.h"
 #include <glm/glm.hpp>
@@ -17,26 +18,20 @@
 
 class Model {
 public:
-	Model(Shader shader, int i);
+	Model(std::string name, int id);
+	Model();
 	float getSizeX();
 	float getSizeY();
 	float getSizeZ();
 
-	void setSizeX(float value);
-	void setSizeY(float value);
-	void setSizeZ(float value);
 
 	float getPositionX();
 	float getPositionY();
 	float getPositionZ();
 
-	void setPositionX(float value);
-	void setPositionY(float value);
-	void setPositionZ(float value);
-
-
-
-private:
+	std::string getName();
+	void setName(std::string newName);
+	int getID();
 	float positionX;
 	float positionY;
 	float positionZ;
@@ -44,6 +39,13 @@ private:
 	float sizeX;
 	float sizeY;
 	float sizeZ;
+
+
+private:
+	
+
+	std::string name;
+	int id;
 };
 
 
