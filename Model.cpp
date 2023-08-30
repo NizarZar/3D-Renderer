@@ -1,7 +1,21 @@
 #include "Model.h"
 
 
-Model::Model(Shader shader, int i) {
+Model::Model() {
+	this->name = "Object";
+	this->id = 0;
+	this->positionX = 0.0f;
+	this->positionY = 0.0f;
+	this->positionZ = 0.0f;
+
+	this->sizeX = 1.0f;
+	this->sizeY = 1.0f;
+	this->sizeZ = 1.0f;
+}
+
+Model::Model(std::string name, int id) {
+	this->name = name;
+	this->id = id;
 	this->positionX = 0.0f;
 	this->positionY = 0.0f;
 	this->positionZ = 0.0f;
@@ -13,24 +27,6 @@ Model::Model(Shader shader, int i) {
 
 }
 
-void Model::setSizeX(float value) {
-	this->sizeX = value;
-}
-void Model::setSizeY(float value) {
-	this->sizeY = value;
-}
-void Model::setSizeZ(float value) {
-	this->sizeZ = value;
-}
-void Model::setPositionX(float value) {
-	this->positionX = value;
-}
-void Model::setPositionY(float value) {
-	this->positionY = value;
-}
-void Model::setPositionZ(float value) {
-	this->positionZ = value;
-}
 
 float Model::getSizeX() {
 	return sizeX;
@@ -49,6 +45,13 @@ float Model::getPositionY() {
 }
 float Model::getPositionZ() {
 	return positionZ;
+}
+
+std::string Model::getName() {
+	return name;
+}
+int Model::getID() {
+	return id;
 }
 
 
