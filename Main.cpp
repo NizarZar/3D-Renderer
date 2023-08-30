@@ -245,41 +245,13 @@ void drawGrid() {
 
 }
 
-void settingsGUI() {
 
-	fileBrowser.SetTitle("Select texture");
-
-	ImGui::Begin("Settings");
-	ImGui::Checkbox("Grid View", &isGridView);
-	ImGui::Text("Position:");
-	ImGui::SliderFloat("X Axis", &currentObject.positionX, -3.0f, 3.0f);
-	ImGui::SliderFloat("Y Axis", &currentObject.positionY, -3.0f, 3.0f);
-	ImGui::SliderFloat("Z Axis", &currentObject.positionZ, -3.0f, 3.0f);
-	ImGui::Text("Scale: ");
-	ImGui::SliderFloat("X", &currentObject.sizeX, 0.f, 3.0f);
-	ImGui::SliderFloat("Y", &currentObject.sizeY, 0.f, 3.0f);
-	ImGui::SliderFloat("Z", &currentObject.sizeZ, 0.f, 3.0f);
-	ImGui::Text("Camera: ");
-	ImGui::SliderFloat("FOV", &fov, 1.f, 90.f);
-	ImGui::Text("Texture: ");
-	if (ImGui::Button("Select Texture")) {
-		fileBrowser.Open();
-	}
-	ImGui::End();
-	fileBrowser.Display();
-	if (fileBrowser.HasSelected()) {
-		textureFilePathString = fileBrowser.GetSelected().string();
-		textureFilePath = textureFilePathString.c_str();
-		fileBrowser.ClearSelected();
-	}
-}
 
 void shapesGUI() {
 	ImGui::Begin("Shapes");
 	if (ImGui::Button("Rectangle")) {
 		std::string rectangle = "rectangle"+shapesI;
 		Model model(rectangle, shapesI);
-		shapes.push_back(rectangle);
 		sceneObjects.push_back(model);
 		shapesI++;
 	}
@@ -295,8 +267,7 @@ void shapesGUI() {
 		//}
 	//}
 	if (ImGui::Button("Clear")) {
-		while (!shapes.empty()) {
-			shapes.pop_back();
+		while (!sceneObjects.empty()) {
 			sceneObjects.pop_back();
 			shapesI = 0;
 		}
@@ -304,11 +275,80 @@ void shapesGUI() {
 	ImGui::End();
 }
 
+void settingsGUI() {
+
+	fileBrowser.SetTitle("Select texture");
+
+	ImGui::Begin("Settings");
+	ImGui::Checkbox("Grid View", &isGridView);
+	ImGui::Text("Position:");
+	if (ImGui::SliderFloat("X Axis", &currentObject.positionX, -3.0f, 3.0f)) {
+		//std::cout << currentObject.positionX << std::endl;
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if (currentObject.getID() == sceneObjects[i].getID()) {
+				sceneObjects[i].positionX = currentObject.positionX;
+			}
+		}
+	}
+	if (ImGui::SliderFloat("Y Axis", &currentObject.positionY, -3.0f, 3.0f)) {
+		//std::cout << currentObject.positionX << std::endl;
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if (currentObject.getID() == sceneObjects[i].getID()) {
+				sceneObjects[i].positionY = currentObject.positionY;
+			}
+		}
+	}
+	if (ImGui::SliderFloat("Z Axis", &currentObject.positionZ, -3.0f, 3.0f)) {
+		//std::cout << currentObject.positionX << std::endl;
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if (currentObject.getID() == sceneObjects[i].getID()) {
+				sceneObjects[i].positionZ = currentObject.positionZ;
+			}
+		}
+	}
+	ImGui::Text("Size: ");
+	if (ImGui::SliderFloat("X", &currentObject.sizeX, 0.f, 3.0f)) {
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if (currentObject.getID() == sceneObjects[i].getID()) {
+				sceneObjects[i].sizeX = currentObject.sizeX;
+			}
+		}
+	}
+	if (ImGui::SliderFloat("Y", &currentObject.sizeY, 0.f, 3.0f)) {
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if (currentObject.getID() == sceneObjects[i].getID()) {
+				sceneObjects[i].sizeY = currentObject.sizeY;
+			}
+		}
+	}
+	if (ImGui::SliderFloat("Z", &currentObject.sizeZ, 0.f, 3.0f)) {
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			if (currentObject.getID() == sceneObjects[i].getID()) {
+				sceneObjects[i].sizeZ = currentObject.sizeZ;
+			}
+		}
+	}
+	ImGui::Text("Camera: ");
+	ImGui::SliderFloat("FOV", &fov, 1.f, 90.f);
+	ImGui::Text("Texture: ");
+	if (ImGui::Button("Select Texture")) {
+		fileBrowser.Open();
+	}
+	ImGui::End();
+	fileBrowser.Display();
+	if (fileBrowser.HasSelected()) {
+		textureFilePathString = fileBrowser.GetSelected().string();
+		textureFilePath = textureFilePathString.c_str();
+		fileBrowser.ClearSelected();
+	}
+}
+
 void sceneGUI() {
 	ImGui::Begin("Scene");
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		bool selectable = ImGui::Selectable(sceneObjects[i].getName().c_str(), false);
 		if (selectable) {
+			selectable = ImGui::Selectable(sceneObjects[i].getName().c_str(), true);
 			if (currentObject.getID() != sceneObjects[i].getID()) {
 				currentObject = sceneObjects[i];
 			}
@@ -440,12 +480,20 @@ int main() {
 		// drawing all the shapes in the list
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			glm::mat4 model = glm::mat4(1.0f);
-			float currentPositionX = currentObject.getPositionX() + i * 0.5f;
+			float currentPositionX;
 			if (sceneObjects[i].getID() == currentObject.getID()) {
+				currentPositionX = currentObject.getPositionX() + i * 0.5f;
 				model = glm::translate(model, glm::vec3(currentPositionX, currentObject.getPositionY(), currentObject.getPositionZ()));
+				shader.setFloat("sizeX", currentObject.getSizeX());
+				shader.setFloat("sizeY", currentObject.getSizeY());
+				shader.setFloat("sizeZ", currentObject.getSizeZ());
 			}
 			else {
-				model = glm::translate(model, glm::vec3(i * 0.5f, 0.0f, 0.0f));
+				currentPositionX = sceneObjects[i].getPositionX() + i * 0.5f;
+				model = glm::translate(model, glm::vec3(currentPositionX, sceneObjects[i].getPositionY(), sceneObjects[i].getPositionZ()));
+				shader.setFloat("sizeX", sceneObjects[i].getSizeX());
+				shader.setFloat("sizeY", sceneObjects[i].getSizeY());
+				shader.setFloat("sizeZ", sceneObjects[i].getSizeZ());
 			}
 			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 			model = glm::rotate(model, -glm::radians(0.f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -456,9 +504,7 @@ int main() {
 
 
 		// set the sizes values to the shader
-		shader.setFloat("sizeX", currentObject.getSizeX());
-		shader.setFloat("sizeY", currentObject.getSizeX());
-		shader.setFloat("sizeZ", currentObject.getSizeZ());
+		
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
