@@ -8,7 +8,8 @@
 const float SCREEN_WIDTH = 800.0f;
 const float SCREEN_HEIGHT = 600.0f;
 
-std::string textureFilePath;
+std::string textureFilePathString;
+const char* textureFilePath;
 
 // object size
 
@@ -262,7 +263,8 @@ void settingsGUI() {
 	ImGui::End();
 	fileBrowser.Display();
 	if (fileBrowser.HasSelected()) {
-		textureFilePath = fileBrowser.GetSelected().string();
+		textureFilePathString = fileBrowser.GetSelected().string();
+		textureFilePath = textureFilePathString.c_str();
 		fileBrowser.ClearSelected();
 	}
 }
@@ -361,22 +363,8 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(textureFilePath.c_str(), &width, &height, &nrChannels, 0);
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		std::cout << "Texture loaded" <<  std::endl;
-	}
-	else {
-		std::cout << "Failed to load the texture" << std::endl;
+	unsigned char* data;
 	
-	}
-	stbi_image_free(data);
-
-
-	shader.use();
-	shader.setInt("texture1", 0);
 	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext(); 
@@ -401,8 +389,6 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
 
-
-
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -415,8 +401,21 @@ int main() {
 			setDefaultSettings();
 		}
 
+		stbi_set_flip_vertically_on_load(true);
+		if (textureFilePath == nullptr) {
+			textureFilePathString = "";
+			textureFilePath = textureFilePathString.c_str();
+		}
+		data = stbi_load(textureFilePath, &width, &height, &nrChannels, 0);
+		if (data) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		stbi_image_free(data);
+
 
 		shader.use();
+		shader.setInt("texture1", 0);
 		// camera view
 		glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
 		int viewLoc = glGetUniformLocation(shader.getID(), "view");
@@ -427,9 +426,6 @@ int main() {
 
 		int projectionLoc = glGetUniformLocation(shader.getID(), "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
-
 		glBindVertexArray(VAO);
 
 		for (int i = 0; i < shapes.size(); i++) {
