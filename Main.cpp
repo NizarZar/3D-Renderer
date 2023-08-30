@@ -8,6 +8,8 @@
 const float SCREEN_WIDTH = 800.0f;
 const float SCREEN_HEIGHT = 600.0f;
 
+std::string textureFilePath;
+
 // object size
 
 float sizeX = 1.0f;
@@ -32,6 +34,9 @@ GLuint VBO, VAO;
 float positionY = 0.0f;
 float positionX = 0.0f;
 float positionZ = 0.0f;
+
+// file dialog
+ImGui::FileBrowser fileBrowser;
 
 // camera
 
@@ -237,6 +242,8 @@ void drawRectangle() {
 
 void settingsGUI() {
 
+	fileBrowser.SetTitle("Select texture");
+
 	ImGui::Begin("Settings");
 	ImGui::Text("Position:");
 	ImGui::SliderFloat("X Axis", &positionX, -3.0f, 3.0f);
@@ -248,8 +255,16 @@ void settingsGUI() {
 	ImGui::SliderFloat("Z", &sizeZ, 0.f, 3.0f);
 	ImGui::Text("Camera: ");
 	ImGui::SliderFloat("FOV", &fov, 1.f, 90.f);
+	ImGui::Text("Texture: ");
+	if (ImGui::Button("Select Texture")) {
+		fileBrowser.Open();
+	}
 	ImGui::End();
-
+	fileBrowser.Display();
+	if (fileBrowser.HasSelected()) {
+		textureFilePath = fileBrowser.GetSelected().string();
+		fileBrowser.ClearSelected();
+	}
 }
 
 void shapesGUI() {
@@ -323,6 +338,7 @@ int main() {
 
 	drawRectangle();
 	
+
 	glEnable(GL_DEPTH_TEST);
 
 
@@ -346,7 +362,7 @@ int main() {
 
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("assets/dirt_block.png", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(textureFilePath.c_str(), &width, &height, &nrChannels, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -391,10 +407,14 @@ int main() {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		settingsGUI();
+		shapesGUI();
+		sceneGUI();
 
 		if (shapes.empty()) {
 			setDefaultSettings();
 		}
+
 
 		shader.use();
 		// camera view
@@ -422,11 +442,6 @@ int main() {
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		
-
-		settingsGUI();
-		shapesGUI();
-		sceneGUI();
 
 
 		shader.setFloat("sizeX", sizeX);
