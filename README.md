@@ -17,9 +17,8 @@ Libraries:
 
 
 
-## Ongoing implementation:
-- Adding a way to dynamically change texture through the GUI
-- With the scene gui being able to select a specific object and change its settings without affecting the others
-- other shapes
-- lightning
-- Create terrain 
+## To be Implemented:
+- Making other shapes
+- Lighting
+- Terrain Creation
+- Gizmos for selection, scaling and rotation
