@@ -1,3 +1,4 @@
+C:\Users\tuton\Desktop\Bricks\Bricks\EBO.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\EBO.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\glad.c;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\glad.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\imgui\imgui.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\imgui.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\imgui\imgui_demo.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\imgui_demo.obj
@@ -8,6 +9,10 @@ C:\Users\tuton\Desktop\Bricks\Bricks\imgui\imgui_stdlib.cpp;C:\Users\tuton\Deskt
 C:\Users\tuton\Desktop\Bricks\Bricks\imgui\imgui_tables.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\imgui_tables.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\imgui\imgui_widgets.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\imgui_widgets.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\Main.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\Main.obj
+C:\Users\tuton\Desktop\Bricks\Bricks\Mesh.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\Mesh.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\Model.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\Model.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\Shader.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\Shader.obj
 C:\Users\tuton\Desktop\Bricks\Bricks\stb_image.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\stb_image.obj
+C:\Users\tuton\Desktop\Bricks\Bricks\Texture.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\Texture.obj
+C:\Users\tuton\Desktop\Bricks\Bricks\VAO.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\VAO.obj
+C:\Users\tuton\Desktop\Bricks\Bricks\VBO.cpp;C:\Users\tuton\Desktop\Bricks\Bricks\x64\Debug\VBO.obj

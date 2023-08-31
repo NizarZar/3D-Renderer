@@ -42,8 +42,6 @@ public:
 
 
 private:
-	
-
 	std::string name;
 	int id;
 };

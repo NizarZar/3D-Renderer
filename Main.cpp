@@ -157,12 +157,12 @@ void processInput(GLFWwindow* window) {
 }
 
 void setDefaultSettings() {
-		sizeX = 1.0f;
-		sizeY = 1.0f;
-		sizeZ = 1.0f;
-		positionX = 0.0f;
-		positionY = 0.0f;
-		positionZ = 0.0f;
+	currentObject.positionX = 0.0f;
+	currentObject.positionY = 0.0f;
+	currentObject.positionZ = 0.0f;
+	currentObject.sizeX = 1.0f;
+	currentObject.sizeY = 1.0f;
+	currentObject.sizeZ = 1.0f;
 }
 
 void drawTriangle() {
@@ -249,8 +249,6 @@ void drawGrid() {
 
 }
 
-
-
 void shapesGUI() {
 	ImGui::Begin("Shapes");
 	ImGui::InputText("Name", &name, sizeof(name));
@@ -295,7 +293,7 @@ void settingsGUI() {
 	ImGui::Checkbox("Grid View (not implemented)", &isGridView);
 	ImGui::Text("Position:");
 	// slider to change the position of the current object as well as store new information on the list of sceneObjects
-	if (ImGui::SliderFloat("X Axis", &currentObject.positionX, -3.0f, 3.0f)) {
+	if (ImGui::SliderFloat("X Axis", &currentObject.positionX, -3.0f, 5.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
@@ -303,7 +301,7 @@ void settingsGUI() {
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Y Axis", &currentObject.positionY, -3.0f, 3.0f)) {
+	if (ImGui::SliderFloat("Y Axis", &currentObject.positionY, -3.0f, 5.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
@@ -311,7 +309,7 @@ void settingsGUI() {
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Z Axis", &currentObject.positionZ, -3.0f, 3.0f)) {
+	if (ImGui::SliderFloat("Z Axis", &currentObject.positionZ, -3.0f, 5.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
@@ -320,21 +318,21 @@ void settingsGUI() {
 		}
 	}
 	ImGui::Text("Size: ");
-	if (ImGui::SliderFloat("X", &currentObject.sizeX, 0.f, 3.0f)) {
+	if (ImGui::SliderFloat("X", &currentObject.sizeX, 0.f, 100.0f)) {
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
 				sceneObjects[i].sizeX = currentObject.sizeX;
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Y", &currentObject.sizeY, 0.f, 3.0f)) {
+	if (ImGui::SliderFloat("Y", &currentObject.sizeY, 0.f, 100.0f)) {
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
 				sceneObjects[i].sizeY = currentObject.sizeY;
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Z", &currentObject.sizeZ, 0.f, 3.0f)) {
+	if (ImGui::SliderFloat("Z", &currentObject.sizeZ, 0.f, 100.0f)) {
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
 				sceneObjects[i].sizeZ = currentObject.sizeZ;
@@ -428,6 +426,7 @@ int main() {
 	int width, height, nrChannels;
 	unsigned char* data;
 	
+
 	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext(); 
@@ -494,14 +493,14 @@ int main() {
 			glm::mat4 model = glm::mat4(1.0f);
 			float currentPositionX;
 			if (sceneObjects[i].getID() == currentObject.getID()) {
-				currentPositionX = currentObject.getPositionX() + i * 0.5f;
+				currentPositionX = currentObject.getPositionX() + i * 0.36f;
 				model = glm::translate(model, glm::vec3(currentPositionX, currentObject.getPositionY(), currentObject.getPositionZ()));
 				shader.setFloat("sizeX", currentObject.getSizeX());
 				shader.setFloat("sizeY", currentObject.getSizeY());
 				shader.setFloat("sizeZ", currentObject.getSizeZ());
 			}
 			else {
-				currentPositionX = sceneObjects[i].getPositionX() + i * 0.5f;
+				currentPositionX = sceneObjects[i].getPositionX() + i * 0.36f;
 				model = glm::translate(model, glm::vec3(currentPositionX, sceneObjects[i].getPositionY(), sceneObjects[i].getPositionZ()));
 				shader.setFloat("sizeX", sceneObjects[i].getSizeX());
 				shader.setFloat("sizeY", sceneObjects[i].getSizeY());
