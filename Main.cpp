@@ -47,7 +47,8 @@ float positionX = 0.0f;
 float positionZ = 0.0f;
 
 // file dialog
-ImGui::FileBrowser fileBrowser;
+ImGui::FileBrowser textureBrowser;
+ImGui::FileBrowser modelBrowser;
 
 // camera
 
@@ -288,7 +289,8 @@ void shapesGUI() {
 
 void settingsGUI() {
 
-	fileBrowser.SetTitle("Select texture");
+	textureBrowser.SetTitle("Select a Texture");
+	modelBrowser.SetTitle("Select a Model");
 
 	ImGui::Begin("Settings");
 	ImGui::Checkbox("Grid View (not implemented)", &isGridView);
@@ -344,14 +346,22 @@ void settingsGUI() {
 	ImGui::SliderFloat("FOV", &fov, 1.f, 90.f);
 	ImGui::Text("Texture: ");
 	if (ImGui::Button("Select Texture")) {
-		fileBrowser.Open();
+		textureBrowser.Open();
+	}
+	ImGui::Text("Modeling: ");
+	if (ImGui::Button("Load a Model")) {
+		modelBrowser.Open();
 	}
 	ImGui::End();
-	fileBrowser.Display();
-	if (fileBrowser.HasSelected()) {
-		textureFilePathString = fileBrowser.GetSelected().string();
+	textureBrowser.Display();
+	modelBrowser.Display();
+	if (modelBrowser.HasSelected()) {
+
+	}
+	if (textureBrowser.HasSelected()) {
+		textureFilePathString = textureBrowser.GetSelected().string();
 		textureFilePath = textureFilePathString.c_str();
-		fileBrowser.ClearSelected();
+		textureBrowser.ClearSelected();
 	}
 }
 
