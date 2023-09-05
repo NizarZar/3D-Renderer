@@ -31,7 +31,6 @@ Texture::Texture(const char* image, const char* texType, GLenum slot) {
 	else {
 		throw std::invalid_argument("Texture recognition failed!");
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
