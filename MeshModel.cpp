@@ -5,6 +5,8 @@ MeshModel::MeshModel(const char* file) {
 	JSON = json::parse(text);
 	this->file = file;
 	data = getData();
+
+	traverseNode(0);
 }
 
 std::vector<unsigned char> MeshModel::getData() {
@@ -81,7 +83,7 @@ std::vector<GLuint> MeshModel::getIndices(json accessor) {
 
 		}
 	}
-	else if (componentType = 5123) {
+	else if (componentType == 5123) {
 		for (unsigned int i = dataStart; i < byteOffset + accByteOffset + count * 2; i) {
 			unsigned char bytes[] = { data[i++], data[i++] };
 			unsigned short value;
@@ -89,7 +91,7 @@ std::vector<GLuint> MeshModel::getIndices(json accessor) {
 			indices.push_back((GLuint)value);
 		}
 	}
-	else if (componentType = 5122) {
+	else if (componentType == 5122) {
 		for (unsigned int i = dataStart; i < byteOffset + accByteOffset + count * 2; i) {
 			unsigned char bytes[] = { data[i++], data[i++] };
 			short value;
@@ -98,6 +100,138 @@ std::vector<GLuint> MeshModel::getIndices(json accessor) {
 		}
 	}
 	return indices;
+}
+
+std::vector<Texture> MeshModel::getTextures()
+{
+	std::vector<Texture> textures;
+
+	std::string fileString = std::string(file);
+	std::string fileDir = fileString.substr(0, fileString.find_last_of('/') + 1);
+
+	for (unsigned int i = 0; i < JSON["images"].size(); i++) {
+		std::string texturePath = JSON["images"][i]["uri"];
+		bool skip = false;
+
+		for (unsigned int j = 0; j < loadedTextureNames.size(); j++) {
+			if (loadedTextureNames[j] == texturePath) {
+				textures.push_back(loadedTextures[j]);
+				skip = true;
+				break;
+			}
+		}
+		if (!skip) {
+			if (texturePath.find("baseColor") != std::string::npos) {
+				Texture diffuse = Texture((fileDir + texturePath).c_str(), "diffuse", loadedTextures.size());
+				textures.push_back(diffuse);
+				loadedTextures.push_back(diffuse);
+				loadedTextureNames.push_back(texturePath);
+			}
+			else if (texturePath.find("metallicRoughness") != std::string::npos) {
+				Texture specular = Texture((fileDir + texturePath).c_str(), "specular", loadedTextures.size());
+				textures.push_back(specular);
+				loadedTextures.push_back(specular);
+				loadedTextureNames.push_back(texturePath);
+			}
+		}
+	}
+	return textures;
+}
+
+std::vector<Vertex> MeshModel::assembleVertices(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> textureCoords)
+{
+	std::vector<Vertex> vertices;
+	for (int i = 0; i < positions.size(); i++) {
+		vertices.push_back(Vertex{ positions[i], normals[i], textureCoords[i] });
+
+	}
+	return vertices;
+}
+
+void MeshModel::loadMeshes(unsigned int meshIndex)
+{
+	unsigned int positionAccIndex = JSON["meshes"][meshIndex]["primitives"][0]["attributes"]["POSITION"];
+	unsigned int normalAccIndex = JSON["meshes"][meshIndex]["primitives"][0]["attributes"]["NORMAL"];
+	unsigned int textureAccIndex = JSON["meshes"][meshIndex]["primitives"][0]["attributes"]["TEXCOORD_0"];
+	unsigned int indexAccIndex = JSON["meshes"][meshIndex]["primitives"][0]["attributes"]["indices"];
+
+	std::vector<float> positionVec = getFloats(JSON["accessors"][positionAccIndex]);
+	std::vector<glm::vec3> positions = groupFloatsVec3(positionVec);
+	std::vector<float> normalVec = getFloats(JSON["accessors"][normalAccIndex]);
+	std::vector<glm::vec3> normals = groupFloatsVec3(normalVec);
+	std::vector<float> textureVec = getFloats(JSON["accessors"][textureAccIndex]);
+	std::vector<glm::vec2> textureUVs = groupFloatsVec2(textureVec);
+
+	std::vector<Vertex> vertices = assembleVertices(positions, normals, textureUVs);
+	std::vector<GLuint> indices = getIndices(JSON["accessors"][indexAccIndex]);
+	std::vector<Texture> textures = getTextures();
+
+	Mesh loadedMesh(vertices, indices, textures);
+
+	meshes.push_back(loadedMesh);
+
+}
+
+void MeshModel::traverseNode(unsigned int nextNode, glm::mat4 matrix)
+{
+	json node = JSON["nodes"][nextNode];
+	
+	glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
+	if (node.find("translation") != node.end()) {
+		float translationValues[3];
+		for (unsigned int i = 0; i < node["translation"].size(); i++) {
+			translationValues[i] = (node["translation"][i]);
+		}
+		translation = glm::make_vec3(translationValues);
+	}
+	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	if (node.find("rotation") != node.end()) {
+		float rotationValues[4] = { node["rotation"][3], node["rotation"][0], node["rotation"][1], node["rotation"][2] };
+		rotation = glm::make_quat(rotationValues);
+	}
+	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	if (node.find("scale") != node.end()) {
+		float scaleValues[3];
+		for (unsigned int i = 0; i < node["scale"].size(); i++) {
+			scaleValues[i] = (node["scale"][i]);
+		}
+		scale = glm::make_vec3(scaleValues);
+	}
+	glm::mat4 matrNode = glm::mat4(1.0f);
+	if (node.find("matrix") != node.end()) {
+		float matrValues[16];
+		for (unsigned int i = 0; i < node["matrix"].size(); i++) {
+			matrValues[i] = (node["matrix"][i]);
+		}
+		matrNode = glm::make_mat4(matrValues);
+	}
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	glm::mat4 rota = glm::mat4(1.0f);
+	glm::mat4 sca = glm::mat4(1.0f);
+	
+
+	trans = glm::translate(trans, translation);
+	rota = glm::mat4_cast(rotation);
+	sca = glm::scale(sca, scale);
+
+	glm::mat4 matrNextNode = matrix * matrNode * trans * rota * sca;
+	if (node.find("mesh") != node.end()) {
+		translationMeshes.push_back(translation);
+		rotationMeshes.push_back(rotation);
+		scaleMeshes.push_back(scale);
+		matrices.push_back(matrNextNode);
+		loadMeshes(node["mesh"]);
+	}
+
+	// repeat with recursion
+	if (node.find("children") != node.end()) {
+		for (unsigned int i = 0; i < node["children"].size(); i++) {
+			traverseNode(node["children"][i], matrNextNode);
+		}
+	}
+
+
 }
 
 std::vector<glm::vec2> MeshModel::groupFloatsVec2(std::vector<float> floatVec) {
@@ -124,4 +258,11 @@ std::vector<glm::vec4> MeshModel::groupFloatsVec4(std::vector<float> floatVec)
 		vectors.push_back(glm::vec4(floatVec[i++], floatVec[i++], floatVec[i++], floatVec[i++]));
 	}
 	return vectors;
+}
+
+void MeshModel::draw(Shader& shader)
+{
+	for (unsigned int i = 0; i < meshes.size(); i++) {
+		meshes[i].draw(shader, matrices[i]);
+	}
 }
