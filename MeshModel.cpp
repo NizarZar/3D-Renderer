@@ -263,6 +263,6 @@ std::vector<glm::vec4> MeshModel::groupFloatsVec4(std::vector<float> floatVec)
 void MeshModel::draw(Shader& shader)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++) {
-		meshes[i].draw(shader, matrices[i]);
+		meshes[i].Mesh::draw(shader, matrices[i]);
 	}
 }

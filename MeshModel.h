@@ -42,7 +42,7 @@ private:
 	std::vector<glm::vec3> groupFloatsVec3(std::vector<float> floatVec);
 	std::vector<glm::vec4> groupFloatsVec4(std::vector<float> floatVec);
 
-	void draw(Shader& shader);
+	
 
 };
 

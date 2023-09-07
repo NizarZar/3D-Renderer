@@ -1,5 +1,5 @@
 #include "Model.h"
-#include "Mesh.h"
+#include "MeshModel.h"
 
 
 // variables
@@ -236,13 +236,6 @@ void drawRectangle() {
 		1, 2, 3
 	};
 
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
 }
@@ -417,27 +410,8 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// ST
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// texture generation
-	unsigned int texture1;
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	int width, height, nrChannels;
-	unsigned char* data;
+	MeshModel meshModel("models/scene.gltf");
 	
-
 	
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext(); 
@@ -457,8 +431,6 @@ int main() {
 		// rendering
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -478,51 +450,12 @@ int main() {
 			textureFilePathString = "";
 			textureFilePath = textureFilePathString.c_str();
 		}
-		data = stbi_load(textureFilePath, &width, &height, &nrChannels, 0);
-		if (data) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-		stbi_image_free(data);
+		
 
 
 		shader.use();
-		shader.setInt("texture1", 0);
-		// camera view
-		glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
-		int viewLoc = glGetUniformLocation(shader.getID(), "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-		// camera projection
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(fov), SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.f);
-
-		int projectionLoc = glGetUniformLocation(shader.getID(), "projection");
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		glBindVertexArray(VAO);
-		// drawing all the shapes in the list
-		for (int i = 0; i < sceneObjects.size(); i++) {
-			glm::mat4 model = glm::mat4(1.0f);
-			float currentPositionX;
-			if (sceneObjects[i].getID() == currentObject.getID()) {
-				currentPositionX = currentObject.getPositionX() + i * 0.36f;
-				model = glm::translate(model, glm::vec3(currentPositionX, currentObject.getPositionY(), currentObject.getPositionZ()));
-				shader.setFloat("sizeX", currentObject.getSizeX());
-				shader.setFloat("sizeY", currentObject.getSizeY());
-				shader.setFloat("sizeZ", currentObject.getSizeZ());
-			}
-			else {
-				currentPositionX = sceneObjects[i].getPositionX() + i * 0.36f;
-				model = glm::translate(model, glm::vec3(currentPositionX, sceneObjects[i].getPositionY(), sceneObjects[i].getPositionZ()));
-				shader.setFloat("sizeX", sceneObjects[i].getSizeX());
-				shader.setFloat("sizeY", sceneObjects[i].getSizeY());
-				shader.setFloat("sizeZ", sceneObjects[i].getSizeZ());
-			}
-			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
-			model = glm::rotate(model, -glm::radians(0.f), glm::vec3(1.0f, 1.0f, 1.0f));
-			int modelLoc = glGetUniformLocation(shader.getID(), "model");
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		
+		meshModel.draw(shader);
 
 
 		// set the sizes values to the shader
