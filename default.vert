@@ -11,6 +11,7 @@ uniform float sizeX;
 uniform float sizeY;
 uniform float sizeZ;
 
+
 void main()
 {
     gl_Position = projection * view  * model * vec4(aPos.x * sizeX, aPos.y * sizeY, aPos.z * sizeZ, 1.0f);

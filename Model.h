@@ -18,7 +18,7 @@
 
 class Model {
 public:
-	Model(std::string name, int id);
+	Model(std::string name, int id, int typeId);
 	Model();
 	float getSizeX();
 	float getSizeY();
@@ -32,6 +32,7 @@ public:
 	std::string getName();
 	void setName(std::string newName);
 	int getID();
+	int getTypeID();
 	float positionX;
 	float positionY;
 	float positionZ;
@@ -46,6 +47,7 @@ private:
 
 	std::string name;
 	int id;
+	int typeId;
 };
 
 
