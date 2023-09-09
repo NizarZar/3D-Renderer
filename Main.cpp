@@ -16,6 +16,37 @@ const float SCREEN_HEIGHT = 720.0f;
 std::string textureFilePathString;
 const char* textureFilePath;
 
+
+// coordinates
+GLfloat lightVertices[] =
+{ //     COORDINATES     //
+	-0.1f, -0.1f,  0.1f,
+	-0.1f, -0.1f, -0.1f,
+	 0.1f, -0.1f, -0.1f,
+	 0.1f, -0.1f,  0.1f,
+	-0.1f,  0.1f,  0.1f,
+	-0.1f,  0.1f, -0.1f,
+	 0.1f,  0.1f, -0.1f,
+	 0.1f,  0.1f,  0.1f
+};
+
+GLuint lightIndices[] =
+{
+	0, 1, 2,
+	0, 2, 3,
+	0, 4, 7,
+	0, 7, 3,
+	3, 7, 6,
+	3, 6, 2,
+	2, 6, 5,
+	2, 5, 1,
+	1, 5, 4,
+	1, 4, 0,
+	4, 5, 6,
+	4, 6, 7
+};
+
+
 // grid view
 bool isGridView = false;
 
@@ -170,24 +201,6 @@ void setDefaultSettings() {
 		positionZ = 0.0f;
 }
 
-void drawTriangle() {
-	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, // left  
-		 0.5f, -0.5f, 0.0f, // right 
-		 0.0f,  0.5f, 0.0f  // top   
-	};
-
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
-
-}
-
 void drawRectangle() {
 	// rectangle
 	float vertices[] = {
@@ -234,10 +247,6 @@ void drawRectangle() {
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-	unsigned int indices[] = {
-		0, 1, 3,
-		1, 2, 3
-	};
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -254,38 +263,15 @@ void drawRectangle() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
 }
 
 void drawLightCube() {
+	
 
-	// coordinates
-	GLfloat vertices[] =
-	{
-		-0.1f, -0.1f,  0.1f,
-		-0.1f, -0.1f, -0.1f,
-		 0.1f, -0.1f, -0.1f,
-		 0.1f, -0.1f,  0.1f,
-		-0.1f,  0.1f,  0.1f,
-		-0.1f,  0.1f, -0.1f,
-		 0.1f,  0.1f, -0.1f,
-		 0.1f,  0.1f,  0.1f
-	};
-
-	GLuint indices[] =
-	{
-		0, 1, 2,
-		0, 2, 3,
-		0, 4, 7,
-		0, 7, 3,
-		3, 7, 6,
-		3, 6, 2,
-		2, 6, 5,
-		2, 5, 1,
-		1, 5, 4,
-		1, 4, 0,
-		4, 5, 6,
-		4, 6, 7
-	};
+	
 
 	glGenVertexArrays(1, &lightVAO);
 	glGenBuffers(1, &lightVBO);
@@ -294,23 +280,18 @@ void drawLightCube() {
 	glBindVertexArray(lightVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint), indices, GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(lightVertices), lightVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(lightIndices), lightIndices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-
-
-
+	std::cout << "created" << std::endl;
 }
 
 void drawGrid() {
 
 }
-
-
 
 void shapesGUI() {
 	ImGui::Begin("Shapes");
@@ -469,29 +450,21 @@ int main() {
 	
 	// shader initialization
 	Shader shader("default.vert", "default.frag");
-
+	Shader lightShader("light.vert", "light.frag");
 	// opengl viewport
 	glViewport(0, 0, (int)SCREEN_WIDTH, (int)SCREEN_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
-
-	drawRectangle();
-
-	Shader lightShader("light.vert", "light.frag");
 	drawLightCube();
-
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPosition = glm::vec3(0.5f, 0.5f, 0.5f);
-	glm::mat4 lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPosition);
-
+	drawRectangle();
+	
 	
 
+	//glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
 	glEnable(GL_DEPTH_TEST);
-
-
 
 	// texture generation
 	unsigned int texture1;
@@ -546,39 +519,40 @@ int main() {
 			textureFilePathString = "";
 			textureFilePath = textureFilePathString.c_str();
 		}
-		data = stbi_load(textureFilePath, &width, &height, &nrChannels, 0);
+		data = stbi_load("assets/dirt_block.png", &width, &height, &nrChannels, 0);
+		//data = stbi_load(textureFilePath, &width, &height, &nrChannels, 0);
 		if (data) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		stbi_image_free(data);
-		shader.use();
-		shader.setInt("texture1", 0);
-		// camera view
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(fov), SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.f);
 		glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
+		shader.setInt("texture1", 0);
+		shader.use();
+		// camera view
 		int viewLoc = glGetUniformLocation(shader.getID(), "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
 		// camera projection
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(fov), SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.f);
 		int projectionLoc = glGetUniformLocation(shader.getID(), "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		lightShader.use();
 		int projectionLightLoc = glGetUniformLocation(lightShader.getID(), "projection");
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(projectionLightLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		int viewLightLoc = glGetUniformLocation(lightShader.getID(), "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(viewLightLoc, 1, GL_FALSE, &view[0][0]);
 		
-		glUniform4f(glGetUniformLocation(lightShader.getID(), "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		//glUniform4f(glGetUniformLocation(lightShader.getID(), "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// drawing all the shapes in the list
 		for (int i = 0; i < sceneObjects.size(); i++) {
+			float currentPositionX;
 			if (sceneObjects[i].getTypeID() == RECTANGLE_ID) {
 				shader.use();
 				glBindVertexArray(VAO);
 				glm::mat4 model = glm::mat4(1.0f);
-				float currentPositionX;
 				if (sceneObjects[i].getID() == currentObject.getID()) {
 					currentPositionX = currentObject.getPositionX() + i * 0.5f;
 					model = glm::translate(model, glm::vec3(currentPositionX, currentObject.getPositionY(), currentObject.getPositionZ()));
@@ -602,14 +576,21 @@ int main() {
 			else if (sceneObjects[i].getTypeID() == LIGHTCUBE_ID) {
 				lightShader.use();
 				glBindVertexArray(lightVAO);
+				glm::mat4 lightModel = glm::mat4(1.0f);
+				if (sceneObjects[i].getID() == currentObject.getID()) {
+					currentPositionX = currentObject.getPositionX() + i * 0.5f;
+					lightModel = glm::translate(lightModel, glm::vec3(currentPositionX, currentObject.getPositionY(), currentObject.getPositionZ()));
+				}
+				else {
+					currentPositionX = sceneObjects[i].getPositionX() + i * 0.5f;
+					lightModel = glm::translate(lightModel, glm::vec3(currentPositionX, sceneObjects[i].getPositionY(), sceneObjects[i].getPositionZ()));
+				}
+				lightModel = glm::rotate(lightModel, -glm::radians(0.f), glm::vec3(1.0f, 1.0f, 1.0f));
 				glUniformMatrix4fv(glGetUniformLocation(lightShader.getID(), "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-				glDrawElements(GL_TRIANGLES, sizeof(GLuint) / sizeof(int), GL_UNSIGNED_INT, 0);
+				glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
 			}
 		}
-
-
-		// set the sizes values to the shader
 		
 
 		ImGui::Render();
@@ -628,9 +609,9 @@ int main() {
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &lightVBO);
-	glDeleteVertexArrays(1, &lightEBO);
 	glDeleteBuffers(1, &lightEBO);
 	shader.remove();
+	lightShader.remove();
 
 	glfwTerminate();
 	return 0;
