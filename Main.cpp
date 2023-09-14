@@ -260,8 +260,11 @@ void drawRectangle() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// ST
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// normal
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -460,9 +463,7 @@ int main() {
 	drawLightCube();
 	drawRectangle();
 	
-	
 
-	//glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -475,6 +476,10 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// initialize light color as white by default
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
 
 	int width, height, nrChannels;
 	unsigned char* data;
@@ -534,18 +539,18 @@ int main() {
 		// camera view
 		int viewLoc = glGetUniformLocation(shader.getID(), "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-
 		// camera projection
 		int projectionLoc = glGetUniformLocation(shader.getID(), "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		// light color
+		glUniform4f(glGetUniformLocation(lightShader.getID(), "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 		lightShader.use();
 		int projectionLightLoc = glGetUniformLocation(lightShader.getID(), "projection");
 		glUniformMatrix4fv(projectionLightLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		int viewLightLoc = glGetUniformLocation(lightShader.getID(), "view");
 		glUniformMatrix4fv(viewLightLoc, 1, GL_FALSE, &view[0][0]);
-		
-		//glUniform4f(glGetUniformLocation(lightShader.getID(), "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform4f(glGetUniformLocation(lightShader.getID(), "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// drawing all the shapes in the list
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			float currentPositionX;
