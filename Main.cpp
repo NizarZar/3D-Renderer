@@ -2,11 +2,10 @@
 
 
 #define RECTANGLE_ID 0
-#define LIGHTCUBE_ID 1
+#define TRIANGLE_ID 1
+#define LIGHTCUBE_ID 2
 
 // variables
-
-// size refer to scaling
 
 // screen 
 const float SCREEN_WIDTH = 1280.f;
@@ -17,9 +16,95 @@ std::string textureFilePathString;
 const char* textureFilePath;
 
 
-// coordinates
+// shapes vertices and indices
+// other rectangle
+ /*
+ * // rectangle
+	float vertices[] = {
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	unsigned int indices[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+ */
+
+GLfloat rectangleVertices[] = {
+	// coordinates			// colors				 // text coord   // normal
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
+
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
+};
+GLuint rectangleIndices[] = {
+	0, 1, 2, // Bottom side
+	0, 2, 3, // Bottom side
+	4, 6, 5, // Left side
+	7, 9, 8, // Non-facing side
+	10, 12, 11, // Right side
+	13, 15, 14 // Facing side
+};
+
+
 GLfloat lightVertices[] =
-{ //     COORDINATES     //
+{	// coordinates
 	-0.1f, -0.1f,  0.1f,
 	-0.1f, -0.1f, -0.1f,
 	 0.1f, -0.1f, -0.1f,
@@ -72,7 +157,8 @@ int objectID = 0;
 std::string name = "";
 
 // VBO, VAO
-GLuint VBO, VAO;
+GLuint VBO, VAO, EBO;
+// light cube VBO, VAO and EBO
 GLuint lightVBO, lightVAO, lightEBO;
 
 
@@ -85,11 +171,12 @@ float positionZ = 0.0f;
 ImGui::FileBrowser fileBrowser;
 
 // camera
-
 glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+
+// settings camera
 bool fMouse = true;
 float yaw = -90.f;
 float pitch = 0.0f;
@@ -97,7 +184,7 @@ float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
 float fov = 45.f;
 
-
+// turn on/off camera look around
 bool lookAround = false;
 
 // time and frame
@@ -202,69 +289,32 @@ void setDefaultSettings() {
 }
 
 void drawRectangle() {
-	// rectangle
-	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
+	
 
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), rectangleVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rectangleIndices), rectangleIndices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// ST
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	// colors
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	// normal
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	// ST
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+	// normal
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+	glEnableVertexAttribArray(3);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -273,9 +323,6 @@ void drawRectangle() {
 
 void drawLightCube() {
 	
-
-	
-
 	glGenVertexArrays(1, &lightVAO);
 	glGenBuffers(1, &lightVBO);
 	glGenBuffers(1, &lightEBO);
@@ -297,7 +344,7 @@ void drawGrid() {
 }
 
 void shapesGUI() {
-	ImGui::Begin("Shapes");
+	ImGui::Begin("Spawnable Objects");
 	ImGui::InputText("Name", &name, sizeof(name));
 	if (ImGui::Button("Rectangle")) {
 		for (unsigned int i = 0; i < sceneObjects.size(); i++) {
@@ -312,7 +359,7 @@ void shapesGUI() {
 		sceneObjects.push_back(model);
 		objectID++;
 	}
-	if (ImGui::Button("Light")) {
+	if (ImGui::Button("Light (Cube)")) {
 		for (unsigned int i = 0; i < sceneObjects.size(); i++) {
 			if (sceneObjects[i].getName() == name) {
 				name += std::to_string(objectID);
@@ -325,17 +372,6 @@ void shapesGUI() {
 		sceneObjects.push_back(model);
 		objectID++;
 	}
-	//if (ImGui::Button("Triangle")) {
-		//std::cout << "Triangle!" << std::endl;
-		//shapes.push_back("triangle");
-		//shapesI++;
-	//}
-	//if (ImGui::Button("Delete Previous")) {
-		//if (!shapes.empty()) {
-		//	shapes.pop_back();
-		//	shapesI--;
-		//}
-	//}
 	if (ImGui::Button("Clear")) {
 		while (!sceneObjects.empty()) {
 			sceneObjects.pop_back();
@@ -353,7 +389,7 @@ void settingsGUI() {
 	ImGui::Checkbox("Grid View (not implemented)", &isGridView);
 	ImGui::Text("Position:");
 	// slider to change the position of the current object as well as store new information on the list of sceneObjects
-	if (ImGui::SliderFloat("X Axis", &currentObject.positionX, -3.0f, 3.0f)) {
+	if (ImGui::SliderFloat("X Axis", &currentObject.positionX, -5.0f, 5.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
@@ -361,7 +397,7 @@ void settingsGUI() {
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Y Axis", &currentObject.positionY, -3.0f, 3.0f)) {
+	if (ImGui::SliderFloat("Y Axis", &currentObject.positionY, -5.0f, 5.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
@@ -369,7 +405,7 @@ void settingsGUI() {
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Z Axis", &currentObject.positionZ, -3.0f, 3.0f)) {
+	if (ImGui::SliderFloat("Z Axis", &currentObject.positionZ, -5.0f, 5.0f)) {
 		//std::cout << currentObject.positionX << std::endl;
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
@@ -378,21 +414,21 @@ void settingsGUI() {
 		}
 	}
 	ImGui::Text("Scale: ");
-	if (ImGui::SliderFloat("X", &currentObject.sizeX, 0.f, 3.0f)) {
+	if (ImGui::SliderFloat("X", &currentObject.sizeX, 0.f, 5.0f)) {
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
 				sceneObjects[i].sizeX = currentObject.sizeX;
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Y", &currentObject.sizeY, 0.f, 3.0f)) {
+	if (ImGui::SliderFloat("Y", &currentObject.sizeY, 0.f, 5.0f)) {
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
 				sceneObjects[i].sizeY = currentObject.sizeY;
 			}
 		}
 	}
-	if (ImGui::SliderFloat("Z", &currentObject.sizeZ, 0.f, 3.0f)) {
+	if (ImGui::SliderFloat("Z", &currentObject.sizeZ, 0.f, 5.0f)) {
 		for (int i = 0; i < sceneObjects.size(); i++) {
 			if (currentObject.getID() == sceneObjects[i].getID()) {
 				sceneObjects[i].sizeZ = currentObject.sizeZ;
@@ -478,7 +514,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// initialize light color as white by default
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 lightColor = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
 
 
 	int width, height, nrChannels;
@@ -576,7 +612,7 @@ int main() {
 				model = glm::rotate(model, -glm::radians(0.f), glm::vec3(1.0f, 1.0f, 1.0f));
 				int modelLoc = glGetUniformLocation(shader.getID(), "model");
 				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-				glDrawArrays(GL_TRIANGLES, 0, 36);
+				glDrawElements(GL_TRIANGLES, sizeof(rectangleIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
 			}
 			else if (sceneObjects[i].getTypeID() == LIGHTCUBE_ID) {
 				lightShader.use();
@@ -612,6 +648,7 @@ int main() {
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &lightVBO);
 	glDeleteBuffers(1, &lightEBO);
