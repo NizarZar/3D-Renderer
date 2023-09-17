@@ -514,7 +514,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// initialize light color as white by default
-	glm::vec4 lightColor = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 
 	int width, height, nrChannels;
