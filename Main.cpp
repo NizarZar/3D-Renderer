@@ -560,7 +560,7 @@ int main() {
 			textureFilePathString = "";
 			textureFilePath = textureFilePathString.c_str();
 		}
-		data = stbi_load("assets/dirt_block.png", &width, &height, &nrChannels, 0);
+		data = stbi_load(textureFilePath, &width, &height, &nrChannels, 0);
 		//data = stbi_load(textureFilePath, &width, &height, &nrChannels, 0);
 		if (data) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -626,6 +626,7 @@ int main() {
 					currentPositionX = sceneObjects[i].getPositionX() + i * 0.5f;
 					lightModel = glm::translate(lightModel, glm::vec3(currentPositionX, sceneObjects[i].getPositionY(), sceneObjects[i].getPositionZ()));
 				}
+				lightModel = glm::scale(lightModel, glm::vec3(0.25f, 0.25f, 0.25f));
 				lightModel = glm::rotate(lightModel, -glm::radians(0.f), glm::vec3(1.0f, 1.0f, 1.0f));
 				glUniformMatrix4fv(glGetUniformLocation(lightShader.getID(), "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 				glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
