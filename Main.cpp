@@ -70,6 +70,8 @@ const char* textureFilePath;
 	};
  */
 
+// temporarily using PYRAMID coordinates instead of CUBE/RECTANGLE
+
 GLfloat rectangleVertices[] = {
 	// coordinates			// colors				 // text coord   // normal
 	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
@@ -626,7 +628,7 @@ int main() {
 					currentPositionX = sceneObjects[i].getPositionX() + i * 0.5f;
 					lightModel = glm::translate(lightModel, glm::vec3(currentPositionX, sceneObjects[i].getPositionY(), sceneObjects[i].getPositionZ()));
 				}
-				lightModel = glm::scale(lightModel, glm::vec3(0.25f, 0.25f, 0.25f));
+				lightModel = glm::scale(lightModel, glm::vec3(0.7f, 0.7f, 0.7f));
 				lightModel = glm::rotate(lightModel, -glm::radians(0.f), glm::vec3(1.0f, 1.0f, 1.0f));
 				glUniformMatrix4fv(glGetUniformLocation(lightShader.getID(), "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 				glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
